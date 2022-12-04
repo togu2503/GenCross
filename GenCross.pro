@@ -1,4 +1,4 @@
-QT       += core gui sql
+QT       += core gui sql printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -11,12 +11,16 @@ CONFIG += c++11
 SOURCES += \
     Board.cpp \
     BoardBuilder.cpp \
+    Cell.cpp \
     Document.cpp \
     PuzzleSolver.cpp \
     SQLBase.cpp \
+    Utility.cpp \
     createcrossworddlg.cpp \
+    lengthdialog.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    waitdialog.cpp
 
 HEADERS += \
     Board.h \
@@ -28,11 +32,15 @@ HEADERS += \
     SQLBase.h \
     Utility.h \
     createcrossworddlg.h \
-    mainwindow.h
+    lengthdialog.h \
+    mainwindow.h \
+    waitdialog.h
 
 FORMS += \
     createcrossworddlg.ui \
-    mainwindow.ui
+    lengthdialog.ui \
+    mainwindow.ui \
+    waitdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

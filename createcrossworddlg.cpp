@@ -13,10 +13,14 @@ CreateCrosswordDlg::~CreateCrosswordDlg()
     delete ui;
 }
 
-Board CreateCrosswordDlg::CreateBoard()
+void CreateCrosswordDlg::CreateBoard(Board* board)
 {
     exec();
-    return Board(GetHeight(),GetWidth());
+
+    if(GetHeight() == 0 || GetWidth() == 0)
+        return;
+
+    *board = Board(GetHeight(),GetWidth());
 }
 
 unsigned int CreateCrosswordDlg::GetHeight()

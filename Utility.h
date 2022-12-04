@@ -1,39 +1,11 @@
 #pragma once
 #include <iostream>
 #include <istream>
+#include <vector>
+
 #include "Cell.h"
 
-inline std::string GetImagePathByArrow(int i)
-{
-    switch (i) {
-    case 0: return std::string("right.png");
-    case 1: return std::string("down_right.png");
-    case 2: return std::string("up_right.png");
-    case 3: return std::string("down.png");
-    case 4: return std::string("left_down.png");
-    case 5: return std::string("right_down.png");
-    default: return std::string("");
-    }
-}
-
-inline std::vector<std::string> SplitOnWords(std::string str)
-{
-    std::vector<std::string> res;
-    std::string temp;
-    temp.clear();
-    for(int i=0;i<str.size();i++)
-    {
-        if(str[i]!=' ')
-            temp.append(1,str[i]);
-        else
-        {
-            res.push_back(temp);
-            temp.clear();
-        }
-    }
-    res.push_back(temp);
-    return res;
-}
+std::vector<std::string> SplitOnWords(std::string str);
 
 
 struct MultiLineText
@@ -97,73 +69,93 @@ struct MultiLineText
 
 };
 
+namespace Direction
+{
+
+    struct DirectionArrow
+    {
+        Cell offset;
+        Cell normVec;
+
+        bool operator == (DirectionArrow another)
+        {
+            return offset == another.offset && normVec == another.normVec;
+        }
+
+        bool operator != (DirectionArrow another)
+        {
+            return !(*this == another);
+        }
+    };
+
+
+    const DirectionArrow kRight     { Cell(0,  1), Cell(0,  1) };
+    const DirectionArrow kDown      { Cell(1,  0), Cell(1,  0) };
+    const DirectionArrow kDownRight { Cell(1,  0), Cell(0,  1) };
+    const DirectionArrow kUpRight   { Cell(-1, 0), Cell(0, 1) };
+    const DirectionArrow kRightDown { Cell(0,  1), Cell(1,  0) };
+    const DirectionArrow kLeftDown  { Cell(0, -1), Cell(1, 0) };
+
+    constexpr int DirectionsCount = 6;
+
+    enum class DirectionType
+    {
+        None = -1,
+        Right,
+        Down,
+        RightDown,
+        LeftDown,
+        DownRight,
+        UpRight
+    };
+
+    inline std::string GetImagePathByArrow(Direction::DirectionType i)
+    {
+        switch (i) {
+        case Direction::DirectionType::Right: return std::string("right.png");
+        case Direction::DirectionType::DownRight: return std::string("down_right.png");
+        case Direction::DirectionType::UpRight: return std::string("up_right.png");
+        case Direction::DirectionType::Down: return std::string("down.png");
+        case Direction::DirectionType::LeftDown: return std::string("left_down.png");
+        case Direction::DirectionType::RightDown: return std::string("right_down.png");
+        default: return std::string("");
+        }
+    }
+
+
+    DirectionType GetDirectionType(DirectionArrow arrow);
+
+    bool IsValidDirectionArrow(DirectionArrow arrow);
+
+    DirectionArrow GetDirectionArrow(DirectionType direction);
+}
+
 struct Question
 {
-public:
-    Question()
-    {
-        questionPos = {0,0};
-        start = {0,0};
-        end = {0,0};
-        direction = 0;
-        intersections = 0;
-        length = 0;
-        question = "";
-        answer = "";
-    }
-    Question(Cell qPos, Cell qStart, Cell qEnd, int d, int len)
-    {
-        questionPos = qPos;
-        start = qStart;
-        end = qEnd;
-        direction = d;
-        length = len;
-    }
-
-    Question(const Question& q)
-    {
-        questionPos = q.questionPos;
-        question = q.question;
-        answer = q.answer;
-        start = q.start;
-        end = q.end;
-        direction = q.direction;
-        length = q.length;
-        intersections = q.intersections;
-    }
-    int intersections;
+    Cell questionPos, start, end;
+    Direction::DirectionType direction;
+    int length;
     std::string question;
     std::string answer;
-    Cell questionPos;
-    Cell start;
-    Cell end;
-    int direction, length;
 
-    bool operator == (Question a)
-    {
-        return(a.questionPos == questionPos && a.direction == direction && start == a.start && end == a.end);
-    }
-    static bool intersectionsCompare(Question t_first, Question t_second)
-    {
-        //std::cout << float(t_first.intersections) / float(t_first.answer.size()) << " " << float(t_second.intersections) / float(t_second.answer.size());
-        if (float(t_first.intersections)/float(t_first.answer.size()) > float(t_second.intersections)/float(t_second.answer.size()))
-        {
-            return true;
-        }
-        return false;
-    }
+    Question();
+    Question(const Cell& tQuestionPosition, const Cell& tStart, const Cell& tEnd, const Direction::DirectionType& tDirection,
+        const int& tLength, const std::string& tQuestion, const std::string& tAnswer);
 
+    bool operator == (const Question& a)
+    {
+        return questionPos == a.questionPos && start == a.start && end == a.end && direction == a.direction && length == a.length &&
+            question == a.question && answer == a.answer;
+    }
 };
-
 
 struct TableRow
 {
     std::string question;
     std::string answer;
 
-    TableRow(std::string t_question, std::string t_answer)
-    {
-        question = t_question;
-        answer = t_answer;
-    }
+    TableRow(std::string t_question, std::string t_answer);
 };
+
+
+int Clamp(int min, int max, int value);

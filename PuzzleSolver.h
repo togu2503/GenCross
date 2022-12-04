@@ -1,52 +1,54 @@
 #pragma once
+
 #include <vector>
 #include <algorithm>
+#include <map>
 #include <string>
 #include <fstream>
 #include <time.h>
-#include "Board.h"
 #include "SQLBase.h"
-#include "Cell.h"
-
-struct DirectionArrows
-{
-    Cell Offset;
-    Cell NormVec;
-};
+#include "Board.h"
+#include "Utility.h"
 
 class PuzzleSolver
 {
-	private:
-		static std::vector<DirectionArrows> arrows;
-        Board* pBoard;
-		std::vector<std::vector<std::string>> badAnswers;
-		std::vector<std::vector<TableRow>> wordList;
-		int maxLengthOfWord, seed, zeroIntersections;
+private:
+    Board* m_pBoard;
+    std::vector<int> m_intersections;
+    // As we can't order of questions(sorting of questions also should be expensive)
+    // we can hold in which order we should traverse them in this vector
+    std::vector<int> m_questionIndicies;
+    std::vector<std::vector<std::string>> m_badAnswers;
+    std::vector<std::vector<TableRow>> m_dictionary;
+    std::string m_pathToDatabase;
+    int m_maxLengthOfWord;
+    int m_minLengthOfWord;
+    int m_seed;
+    int m_zeroIntersections;
 
-		std::vector<TableRow> findWords(std::string mask);
+    std::vector<TableRow> FindWords(std::string mask);
 
-		void reloadQuestions();
-		void clearUselessWords();
-        void putOnBoard(Question);
-		void calcIntersections();
+    void CalcIntersections();
 
-		int findCountOfWords(std::string mask);
+    int FindCountOfWords(std::string mask);
 
-		bool isWordInDict(std::string);
-		bool isPossibleToSolve(int);
+    void SortQuestionsIndiciesByIntersections();
 
+    const Question& GetSortedQuestion(int index);
+
+    bool IsWordInDict(std::string);
+    bool IsPossibleToSolve(int);
+
+    bool FillDictionary();
+
+    const std::vector<TableRow>& GetWordsWithLength(int length);
 
 public:
+    PuzzleSolver(std::string pathToDatabase);
 
-        PuzzleSolver(Board &t_board, std::vector<Question> Questions, std::string PathToDatabase, int Seed=0);
-        ~PuzzleSolver();
+    void SetSeed(int seed) { m_seed = seed; }
+    int GetSeed() { return m_seed; }
 
-		void setSeed(int Seed);
-		int getSeed();
-		void exportToFile(std::string FilePath);
+    void SolvePuzzle(Board& board, int seed);
 
-		void showBoard();
-        bool solvePuzzle();
-		
 };
-

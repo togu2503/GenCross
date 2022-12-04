@@ -14,7 +14,7 @@ class CreateCrosswordDlg : public QDialog
 
 public:
 
-    Board CreateBoard();
+    void CreateBoard(Board* board);
 
     explicit CreateCrosswordDlg(QWidget *parent = nullptr);
     ~CreateCrosswordDlg();

@@ -1,58 +1,51 @@
 #pragma once
+
 #include <vector>
+#include <random>
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "DirectionArrow.h"
-#include "Utility.h"
-#include "Board.h"
+#include <optional>
 #include <memory>
-
+#include "Board.h"
 
 
 class BoardBuilder
 {
 private:
-    static std::vector<DirectionArrow> s_arrows;
-    std::unique_ptr<Board> pBoard;
-    // TODO initialize object thorugh the Board
-    // TODO maybe just Question with strings will be good choice?
+
+    Board* m_pBoard;
 
     //parameters of building
-    int maxWordLength = 7;
-    int minWordLength = 3;
-    int errorsToRestart = 50;
+    int m_maxWordLength;
+    int m_minWordLength;
+    int m_errorsToRestart;
+    std::default_random_engine m_randEngine;
+    unsigned long int m_seed;
 
-    void putQuestionOnBoard(Question);
-    void clearWord(Question);
+    std::vector<Cell> ScanDirectionFromCell(const Cell& cell, const Direction::DirectionType direction);
+    bool IsPossibleToInsertQuestion(const Cell& cell);
 
-    bool isVoidCell();
-    bool isCorrupting(Cell, int Direction);
-    bool isIntersection(Cell, Question);
-    
-    int chooseDirection(std::vector<std::vector<int>> const & Directions, std::vector<int> const & SuggestedDirections);
-    int distanceBetweenCells(Cell, Cell);
-    
-    Cell findCell();
+    std::optional<Question> FindNextWord(const Cell& position, std::vector<Direction::DirectionType> arrowPriority);
 
-    Question findNextWord(Cell QuestionPosition, std::vector<int> DirectionPriority);
 public:
-    BoardBuilder(Board &board, int MinWordLength=3, int MaxWordLength=7);
+    BoardBuilder() = delete;
+    BoardBuilder(const BoardBuilder&) = delete;
+    BoardBuilder(int minWordLength, int maxWordLength, int errorsToRestart);
 
-    int getWidth();
-    int getHeight();
-    int getMaxWordLength();
-    int getMinWordLength();
-    Board getBoard();
-    std::vector<Question> getAllQuestions();
+    char GetNextLetter(const Cell& cell, const Direction::DirectionArrow& arrow);
+    int GetMaxWordLength() { return m_maxWordLength; }
+    int GetMinWordLength() { return m_minWordLength; }
+    int GetErrorsToRestart() { return m_errorsToRestart; };
 
-    void setMaxWordLength(int MaxWordLength);
-    void setMinWordLength(int MinWordLength);
+    void GenerateBoard(Board& board, unsigned long int seed);
+
+    void SetMaxWordLength(int maxWordLength) { m_maxWordLength = maxWordLength; }
+    void SetMinWordLength(int minWordLength) { m_minWordLength = minWordLength; }
+    void SetErrorsToRestart(int errorsToRestart) { m_errorsToRestart = errorsToRestart; }
 
 
-    void restart();
-    bool generateBoard(int seed=0);
+    void Restart();
 
 };
-

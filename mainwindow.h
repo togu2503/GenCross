@@ -24,11 +24,25 @@ class MainWindow : public QMainWindow
 
 public:
 
+    void ClearCrossTable();
+
     void ShowQuestions();
+    void ShowAnswers();
+    void ShowUserAnswers();
+
+    void NextActiveCell();
+
+    void CheckAnswers();
+
+    void FormatCrossTable();
+
     void ShowActiveDocument();
 
-    void SetActiveDocument(Document);
-    Board& GetActiveDocument();
+    void SelectActiveCell();
+    void SetCellSize(int height, int width);
+
+    void SetActiveDocument(const Document&);
+    Document* GetActiveDocument();
 
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -46,11 +60,37 @@ private slots:
 
     void on_WordList_itemClicked(QListWidgetItem *item);
 
-    void on_WordList_currentRowChanged(int currentRow);
+    void on_CrossTable_cellClicked(int row, int column);
+
+    void on_CrossTable_cellChanged(int row, int column);
+
+    void on_actionShowAnswers_triggered();
+
+    void on_actionHideAnswers_triggered();
 
 private:
+
+    void CopyMainToUserBoard();
+
     Ui::MainWindow *ui;
     Document m_ActiveDocument;
+
+    Board m_UserBoard;
+
+    Cell m_NormVectorAnswer;
+    Cell m_CurrentCell;
+
+    int m_nCellWidth = 60;
+    int m_nCellHeight = 60;
+
+    bool m_bShowUserBoard = true;
+    enum ViewType
+    {
+        WithAnswers = 1,
+        NoAnswers = 2
+    } m_ViewType;
+
+    QThread * m_myThread;
 
 };
 #endif // MAINWINDOW_H

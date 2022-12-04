@@ -1,13 +1,13 @@
 #include "Document.h"
 
-void Document::SetBoard(Board& b)
+void Document::SetBoard(std::shared_ptr<Board> b)
 {
-    m_Board = &b;
+    m_pBoard = std::move(b);
 }
 
-Board& Document::GetBoard()
+std::shared_ptr<Board> Document::GetBoard()
 {
-    return *m_Board;
+    return m_pBoard;
 }
 
 void Document::SetCellSize(int width,int height)

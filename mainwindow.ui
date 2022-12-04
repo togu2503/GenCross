@@ -123,7 +123,7 @@
      <x>0</x>
      <y>0</y>
      <width>798</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -145,8 +145,16 @@
     <addaction name="actionGenerate_Empy_Board"/>
     <addaction name="actionGenerate_Solved_Board"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionShowAnswers"/>
+    <addaction name="actionHideAnswers"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuGenerate"/>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionCreate">
@@ -185,6 +193,16 @@
   <action name="actionGenerate_Solved_Board">
    <property name="text">
     <string>Generate Solved Board</string>
+   </property>
+  </action>
+  <action name="actionShowAnswers">
+   <property name="text">
+    <string>ShowAnswers</string>
+   </property>
+  </action>
+  <action name="actionHideAnswers">
+   <property name="text">
+    <string>HideAnswers</string>
    </property>
   </action>
  </widget>
