@@ -148,10 +148,10 @@ void MainWindow::ShowQuestions()
 
 void MainWindow::ShowUserAnswers()
 {
-    for(int i = 0;i < m_UserBoard.GetHeight(); i++)
-        for(int j = 0; j < m_UserBoard.GetWidth(); j++)
+    for(int i = 0;i < m_ActiveDocument.GetUserBoard()->GetHeight(); i++)
+        for(int j = 0; j < m_ActiveDocument.GetUserBoard()->GetWidth(); j++)
         {
-            char letter = m_UserBoard.GetLetterFromCell(Cell(i,j));
+            char letter = m_ActiveDocument.GetUserBoard()->GetLetterFromCell(Cell(i,j));
             if(letter == '#' || letter =='.' || letter == '_')
                 continue; 
 
@@ -175,18 +175,6 @@ void MainWindow::ShowActiveDocument()
     ShowQuestions();
 }
 
-void MainWindow::CopyMainToUserBoard()
-{
-    m_UserBoard = Board(m_ActiveDocument.GetBoard()->GetHeight(), m_ActiveDocument.GetBoard()->GetWidth());
-
-    auto currentBoard = m_ActiveDocument.GetBoard();
-
-    for(int i =0; i < currentBoard->GetQuestions().size(); i++)
-    {
-        auto currentQuestion = currentBoard->GetQuestions()[i];
-        m_UserBoard.PutLetterInCell(Cell(currentQuestion.questionPos.m_col,currentQuestion.questionPos.m_row), '#');
-    }
-}
 
 void MainWindow::CheckAnswers()
 {
@@ -204,7 +192,7 @@ void MainWindow::CheckAnswers()
 
         for(auto currentCell = currentQuestion.start; currentCell != currentQuestion.end + Direction::GetDirectionArrow(currentQuestion.direction).normVec; currentCell += Direction::GetDirectionArrow(currentQuestion.direction).normVec)
         {
-            userWord += m_UserBoard.GetLetterFromCell(Cell(currentCell.m_row, currentCell.m_col));
+            userWord += m_ActiveDocument.GetUserBoard()->GetLetterFromCell(Cell(currentCell.m_row, currentCell.m_col));
         }
 
         if (userWord.find('.') == std::string::npos && userWord.find('_') == std::string::npos)
@@ -245,11 +233,8 @@ void MainWindow::on_actionCreate_triggered()
     dlg.setModal(true);
     Board temp;
     dlg.CreateBoard(&temp);
-    std::shared_ptr<Board> pBoard = std::make_shared<Board>(temp);
 
-    m_ActiveDocument.SetBoard(pBoard);
-
-    CopyMainToUserBoard();
+    m_ActiveDocument.SetBoard(temp);
 
     ShowActiveDocument();
 }
@@ -258,11 +243,11 @@ void MainWindow::on_actionOpen_triggered()
 {
     QFileDialog dialog;
     dialog.setFileMode(QFileDialog::AnyFile);
-    auto pathToFile = dialog.getOpenFileName().toStdString();
-    std::ifstream f(pathToFile);
-    if(!f.good())
-        return;
-    //m_ActiveDocument->SetBoard(pathToFile);
+    auto pathToFile = dialog.getOpenFileName();
+
+    m_ActiveDocument = Document(pathToFile);
+
+    ClearCrossTable();
     ShowActiveDocument();
 
     CheckAnswers();
@@ -270,16 +255,24 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    QFileDialog dialog;
-    dialog.setFileMode(QFileDialog::AnyFile);;
-    auto pathToFile = dialog.getSaveFileName();
-    if(m_ActiveDocument.GetBoard())
-        m_ActiveDocument.GetBoard()->SaveAsJSONFile(pathToFile);
+    if(m_ActiveDocument.GetSaveFilePath().isEmpty())
+    {
+        QFileDialog dialog;
+        dialog.setFileMode(QFileDialog::AnyFile);;
+        auto pathToFile = dialog.getSaveFileName();
+        m_ActiveDocument.SetSaveFilePath(pathToFile);
+    }
+
+    m_ActiveDocument.SaveDocumentAsJSON();
+
     ShowActiveDocument();
 }
 
 void MainWindow::on_actionGenerate_Empy_Board_triggered()
 {
+    if(!m_ActiveDocument.GetBoard())
+        return;
+
     m_ActiveDocument.GetBoard()->CleanBoard();
 
     LengthDialog dlg(this);
@@ -295,13 +288,17 @@ void MainWindow::on_actionGenerate_Empy_Board_triggered()
         bool isBuilded = false;
         // 10 x 10
         // 3 - 7 seed 10
-        // 3 - 5 seed 13, 15, 17
+        // 3 - 5 seed 13, 15, 17, 23, 26, 33
+        // 12 x 14
+        // 3 - 5 seed 4, 5
         BoardBuilder builder(min, max, 100);
         while(!isBuilded)
         {
             try
             {
-            builder.GenerateBoard(*m_ActiveDocument.GetBoard(), seed);
+            auto tempBoard = *m_ActiveDocument.GetBoard();
+            builder.GenerateBoard(tempBoard, seed);
+            m_ActiveDocument.SetBoard(tempBoard);
             ShowActiveDocument();
             isBuilded = true;
             }
@@ -327,9 +324,10 @@ void MainWindow::on_actionGenerate_Solved_Board_triggered()
     try
     {
 
-        solver.SolvePuzzle(*m_ActiveDocument.GetBoard(),11);
+        auto tempBoard = *m_ActiveDocument.GetBoard();
+        solver.SolvePuzzle(tempBoard,11);
+        m_ActiveDocument.SetBoard(tempBoard);
         ShowActiveDocument();
-        ShowQuestions();
         isBuilded = true;
     }
     catch(...)
@@ -404,7 +402,7 @@ void MainWindow::on_CrossTable_cellChanged(int row, int column)
 
     ui->CrossTable->item(row,column)->setText(text.at(0));
 
-    m_UserBoard.PutLetterInCell(Cell(row,column), text.at(0).toLatin1());
+    m_ActiveDocument.GetUserBoard()->PutLetterInCell(Cell(row,column), text.at(0).toLatin1());
 
 
     NextActiveCell();

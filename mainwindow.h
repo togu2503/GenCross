@@ -75,8 +75,6 @@ private:
     Ui::MainWindow *ui;
     Document m_ActiveDocument;
 
-    Board m_UserBoard;
-
     Cell m_NormVectorAnswer;
     Cell m_CurrentCell;
 

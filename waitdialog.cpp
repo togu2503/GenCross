@@ -28,7 +28,7 @@ void WaitDialog::StopProcess()
 {
     if(!m_bIsTerminated)
     {
-        m_Thread->terminate();
+        m_Thread->quit();
         m_bIsTerminated = true;
         this->setModal(false);
         this->clearFocus();

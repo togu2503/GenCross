@@ -19,12 +19,15 @@ public:
     Board(Board&& board) noexcept;
     Board(const int height, const int width);
 
-    int GetWidth() { return m_width; }
-    int GetHeight() { return m_height; }
+    int GetWidth() const { return m_width; }
+    int GetHeight() const { return m_height; }
     const std::vector<std::string>& GetBoardAsVectorOfString() { return m_data; }
     const std::vector<Question>& GetQuestions() { return m_questions; }
     char GetLetterFromCell(const Cell& cell) { return m_data[cell.m_row][cell.m_col]; };
     const Question& GetLastQuestion() { return m_questions.back(); }
+
+    const std::string& GetRow(int index) const;
+    void SetRow(int index, std::string);
 
     void SetQuestionAnswer(int index, std::string question, std::string answer);
 

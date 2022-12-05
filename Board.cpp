@@ -369,6 +369,38 @@ bool Board::IsCellOnBoard(const Cell &cell)
 }
 
 /******************************************************
+    Name: Board::GetRow(int index)
+
+    Params: cell - cell that you want to check on board.
+
+    Action: Check whether cell in on board or not.
+
+    Return:
+*******************************************************/
+const std::string& Board::GetRow(int index) const
+{
+    if(index >= 0 && index < GetHeight())
+        return m_data[index];
+
+    return "";
+}
+
+/******************************************************
+    Name: Board::SetRow(int index)
+
+    Params: cell - cell that you want to check on board.
+
+    Action: Check whether cell in on board or not.
+
+    Return:
+*******************************************************/
+void Board::SetRow(int index, std::string str)
+{
+    if(index >= 0 && index < GetHeight() - 1)
+        m_data[index] = str;
+}
+
+/******************************************************
     Name: Board::TBD
 
     Params: cell - cell that you want to check on board.
