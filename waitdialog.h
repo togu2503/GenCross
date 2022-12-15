@@ -13,21 +13,17 @@ class WaitDialog : public QDialog
 
 public:
 
+    explicit WaitDialog(QWidget *parent = nullptr);
+    ~WaitDialog();
+
     void ExecFunction(QThread * thread);
 
     void StopProcess();
 
-    explicit WaitDialog(QWidget *parent = nullptr);
-    ~WaitDialog();
-
 private slots:
     void on_pushButton_clicked();
-
-
     void on_WaitDialog_finished(int result);
-
     void on_WaitDialog_rejected();
-
     void on_WaitDialog_destroyed();
 
 private:

@@ -17,10 +17,10 @@ private:
 
     Board* m_pBoard;
 
-    //parameters of building
     int m_maxWordLength;
     int m_minWordLength;
     int m_errorsToRestart;
+
     std::default_random_engine m_randEngine;
     unsigned long int m_seed;
 

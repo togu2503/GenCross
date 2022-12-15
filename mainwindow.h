@@ -28,19 +28,17 @@ public:
 
     void ClearCrossTable();
 
+    void ShowActiveDocument();
     void ShowQuestions();
     void ShowAnswers();
     void ShowUserAnswers();
+    void FormatCrossTable();
 
     void NextActiveCell();
+    void SelectActiveCell();
 
     void CheckAnswers();
 
-    void FormatCrossTable();
-
-    void ShowActiveDocument();
-
-    void SelectActiveCell();
     void SetCellSize(int height, int width);
 
     void SetActiveDocument(const Document&);
@@ -57,28 +55,19 @@ protected slots:
 
 private slots:
     void on_actionOpen_triggered();
-
     void on_actionCreate_triggered();
-
     void on_actionSave_triggered();
+    void on_actionSave_As_triggered();
+    void on_actionExit_triggered();
 
     void on_actionGenerate_Empy_Board_triggered();
-
     void on_actionGenerate_Solved_Board_triggered();
 
     void on_WordList_itemClicked(QListWidgetItem *item);
-
     void on_CrossTable_cellClicked(int row, int column);
-
     void on_CrossTable_cellChanged(int row, int column);
-
     void on_actionShowAnswers_triggered();
-
     void on_actionHideAnswers_triggered();
-
-    void on_actionExit_triggered();
-
-    void on_actionSave_As_triggered();
 
 private:
 
@@ -88,12 +77,12 @@ private:
 
     void switchTranslator(QTranslator& translator, const QString& filename);
 
+    void CopyMainToUserBoard();
+
     QTranslator m_Translator;
     QTranslator m_TranslatorQt;
     QString m_CurrentLanguage;
     QString m_LanguagesPath;
-
-    void CopyMainToUserBoard();
 
     Ui::MainWindow *ui;
     Document m_ActiveDocument;

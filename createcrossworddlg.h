@@ -13,11 +13,11 @@ class CreateCrosswordDlg : public QDialog
     Q_OBJECT
 
 public:
+    explicit CreateCrosswordDlg(QWidget *parent = nullptr);
+    ~CreateCrosswordDlg();
 
     std::shared_ptr<Board> CreateBoard();
 
-    explicit CreateCrosswordDlg(QWidget *parent = nullptr);
-    ~CreateCrosswordDlg();
     void SetWidth(unsigned int width);
     void SetHeight(unsigned int height);
     unsigned int GetWidth();
@@ -28,9 +28,7 @@ public:
 private slots:
 
     void on_HeightSpinBox_valueChanged(int arg1);
-
     void on_WidthSpinBox_valueChanged(int arg1);
-
     void on_buttonBox_rejected();
 
 private:

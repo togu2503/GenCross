@@ -14,10 +14,9 @@ class SQLBase
         QSqlDatabase m_db;
 	public:
 		SQLBase(std::string DataBaseName);
+        virtual ~SQLBase();
 
 		std::vector<TableRow> getWords(std::string Mask);
 		int getNumberOfWords(std::string Mask);
-		virtual ~SQLBase();
-
 };
 

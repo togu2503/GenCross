@@ -13,18 +13,15 @@ class LengthDialog : public QDialog
 
 public:
     explicit LengthDialog(QWidget *parent = nullptr);
+    ~LengthDialog();
 
     bool ShowDialog(int* min, int* max, int* seed);
-
-    ~LengthDialog();
 
 
 private slots:
 
     void on_minValue_valueChanged(int arg1);
-
     void on_maxValue_valueChanged(int arg1);
-
     void on_Seed_valueChanged(int arg1);
 
     void on_buttonBox_accepted();
