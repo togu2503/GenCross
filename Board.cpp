@@ -155,13 +155,13 @@ void Board::SetQuestionAnswer(int index, std::string question, std::string answe
 }
 
 /******************************************************
-    Name: Board::TBD
+    Name: Board::RefreshBoard
 
     Params:
 
-    Action: Get actual bort as vector of strings.
+    Action: sync questions and board.
 
-    Return: Vector of strings.
+    Return:
 *******************************************************/
 void Board::RefreshBoard()
 {
@@ -183,13 +183,14 @@ void Board::RefreshBoard()
 }
 
 /******************************************************
-    Name: Board::TBD
+    Name: Board::PutQuestionOnBoard
 
     Params:
+            question - question that will be inserted
 
-    Action: Get actual bort as vector of strings.
+    Action: Puts question.
 
-    Return: Vector of strings.
+    Return:
 *******************************************************/
 void Board::PutQuestionOnBoard(const Question& question)
 {
@@ -212,13 +213,13 @@ void Board::RefreshQuestions()
 }
 
 /******************************************************
-    Name: Board::TBD
+    Name: Board::IsAnyVoidCell
 
     Params:
 
-    Action: Get actual bort as vector of strings.
+    Action: Checks if there void cell on the board
 
-    Return: Vector of strings.
+    Return: bool
 *******************************************************/
 bool Board::IsAnyVoidCell()
 {
@@ -233,13 +234,14 @@ bool Board::IsAnyVoidCell()
 
 
 /******************************************************
-    Name: Board::TBD
+    Name: Board::RemoveQuestionFromBoard
 
     Params:
+            index - index of question
 
-    Action: Get actual bort as vector of strings.
+    Action: Removes question at index from board.
 
-    Return: Vector of strings.
+    Return:
 *******************************************************/
 void Board::RemoveQuestionFromBoard(const int index)
 {
@@ -252,13 +254,13 @@ void Board::RemoveQuestionFromBoard(const int index)
 }
 
 /******************************************************
-    Name: Board::TBD
+    Name: Board::RemoveLastQuestionFromBoard
 
     Params:
 
-    Action: Get actual bort as vector of strings.
+    Action: Removes last question from board
 
-    Return: Vector of strings.
+    Return:
 *******************************************************/
 void Board::RemoveLastQuestionFromBoard()
 {
@@ -306,13 +308,13 @@ void Board::ShowBoard()
 }
 
 /******************************************************
-    Name: Board::TBD
+    Name: Board::FindEmptyCell
 
     Params:
 
-    Action: Output to cout whole board.
+    Action: Finds empty cell
 
-    Return:
+    Return: cell
 *******************************************************/
 Cell Board::FindEmptyCell()
 {
@@ -327,11 +329,13 @@ Cell Board::FindEmptyCell()
 }
 
 /******************************************************
-    Name: Board::ShowBoard()
+    Name: Board::IsOverlapping()
 
     Params:
+            cell - cell to check
+            directionType - direction of the question
 
-    Action: Output to cout whole board.
+    Action: check if we have overlapping with other words.
 
     Return:
 *******************************************************/
@@ -355,7 +359,7 @@ bool Board::IsOverlapping(const Cell& cell, const Direction::DirectionType& dire
 }
 
 /******************************************************
-    Name: Board::ShowBoard()
+    Name: Board::IsCellOnBoard()
 
     Params: cell - cell that you want to check on board.
 
@@ -372,11 +376,9 @@ bool Board::IsCellOnBoard(const Cell &cell)
 }
 
 /******************************************************
-    Name: Board::GetRow(int index)
+    Name: Board::GetRow()
 
-    Params: cell - cell that you want to check on board.
-
-    Action: Check whether cell in on board or not.
+    Params:
 
     Return:
 *******************************************************/
@@ -389,11 +391,12 @@ const std::string& Board::GetRow(int index) const
 }
 
 /******************************************************
-    Name: Board::SetRow(int index)
+    Name: Board::SetRow()
 
-    Params: cell - cell that you want to check on board.
+    Params: index - index of row in which we will insert string
+            str - string that will be inserted
 
-    Action: Check whether cell in on board or not.
+    Action: inserts string in row
 
     Return:
 *******************************************************/
@@ -404,111 +407,11 @@ void Board::SetRow(int index, std::string str)
 }
 
 /******************************************************
-    Name: Board::TBD
+    Name: Board::CleanBoard
 
-    Params: cell - cell that you want to check on board.
+    Params:
 
-    Action: Check whether cell in on board or not.
-
-    Return:
-*******************************************************/
-void Board::ExportToPDFFile(const std::string& filePath)
-{
-    QTextDocument *doc = new QTextDocument;
-    doc->setDocumentMargin(0);
-
-    QTextCursor cursor(doc);
-
-    cursor.movePosition(QTextCursor::Start);
-
-    QTextTable *table = cursor.insertTable(GetHeight(), GetWidth());
-
-    QTextTableFormat tableFormat;
-
-    tableFormat.setBorder(1);
-
-    tableFormat.setBorderCollapse(true);
-    tableFormat.setAlignment(Qt::AlignCenter);
-
-    table->setFormat(tableFormat);
-
-    for(int i = 0; i < GetHeight(); i++)
-    {
-        for(int j = 0; j < GetWidth(); j++)
-        {
-
-            QTextTableCell cell = table->cellAt(i,j);
-
-
-            QTextCursor cellCursor = cell.firstCursorPosition();
-
-            QTextCharFormat format;
-            format.setVerticalAlignment(QTextCharFormat::AlignMiddle);
-            format.setFont(QFont("Times New Roman", 12));
-
-            QTextBlockFormat centerAlignment;
-            centerAlignment.setAlignment(Qt::AlignHCenter);
-
-            QTextFrameFormat frameFormat;
-            frameFormat.setHeight(QTextLength(QTextLength::Type::FixedLength, 0));
-
-            cellCursor = cellCursor.insertFrame(frameFormat)->lastCursorPosition();
-            cellCursor.setCharFormat(format);
-            cellCursor.setBlockFormat(centerAlignment);
-
-
-            char letter = GetLetterFromCell({i,j});
-
-            if(letter != '#')
-                cellCursor.insertText(QString(letter),format);
-
-        }
-    }
-
-    for(int i =0;i< m_questions.size(); i++)
-    {
-
-
-        QTextTableCell cell = table->cellAt(m_questions[i].questionPos.m_row, m_questions[i].questionPos.m_col);
-
-        MultiLineText temp (m_questions[i].question, 10);
-
-        QTextCursor cellCursor = cell.firstCursorPosition();
-
-        QTextCharFormat format;
-        format.setVerticalAlignment(QTextCharFormat::AlignMiddle);
-        format.setFont(QFont("Times New Roman", 8));
-
-        QTextBlockFormat centerAlignment;
-        centerAlignment.setAlignment(Qt::AlignHCenter);
-
-        QTextFrameFormat frameFormat;
-        QString imagePath = "./img/" + QString::fromStdString(Direction::GetImagePathByArrow(m_questions[i].direction));
-        if(imagePath != "./img/")
-        {
-            QImage backgroundIcon(imagePath);
-            frameFormat.setBackground(QBrush(backgroundIcon.scaled(200,200,Qt::AspectRatioMode::KeepAspectRatio,Qt::TransformationMode::SmoothTransformation)));
-        }
-
-        cellCursor.setBlockFormat(centerAlignment);
-        cellCursor.insertFrame(frameFormat);
-
-        //cellCursor.insertText(QString::fromStdString(temp.GetString()), format);
-    }
-
-    //Print to PDF
-    QPrinter printer(QPrinter::HighResolution);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(QString::fromStdString(filePath)+ ".pdf");
-    doc->print(&printer);
-}
-
-/******************************************************
-    Name: Board::TBD
-
-    Params: cell - cell that you want to check on board.
-
-    Action: Check whether cell in on board or not.
+    Action: Cleans board.
 
     Return:
 *******************************************************/
