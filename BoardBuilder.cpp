@@ -11,7 +11,6 @@ BoardBuilder::BoardBuilder(int minWordLength, int maxWordLength, int errorsToRes
     m_errorsToRestart = Clamp(0,1000,errorsToRestart);
 }
 
-// Maybe change it to lambda?
 char BoardBuilder::GetNextLetter(const Cell& cell, const Direction::DirectionArrow& arrow)
 {
     if(m_pBoard->IsCellOnBoard(cell))
@@ -171,7 +170,9 @@ void BoardBuilder::GenerateBoard(Board& board, unsigned long int seed)
             while (std::find(badQuestions.begin(), badQuestions.end(), questionToDelete) != badQuestions.end())
             {
                 m_pBoard->RemoveLastQuestionFromBoard();
-                questionToDelete = m_pBoard->GetLastQuestion();
+
+                if(!m_pBoard->GetQuestions().empty())
+                    questionToDelete = m_pBoard->GetLastQuestion();
             }
 
             badQuestions.push_back(questionToDelete);
@@ -179,8 +180,6 @@ void BoardBuilder::GenerateBoard(Board& board, unsigned long int seed)
             questionPosition = m_pBoard->GetQuestions().back().questionPos;
 
             m_pBoard->RemoveLastQuestionFromBoard();
-            //system("cls");
-            //m_pBoard->ShowBoard();
             continue;
         }
 
@@ -192,25 +191,5 @@ void BoardBuilder::GenerateBoard(Board& board, unsigned long int seed)
             questionPosition = nextToWordsEnd;
         else
             questionPosition = Cell(-1, -1);
-
-        //system("cls");
-        //m_pBoard->ShowBoard();
-
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
     }
 }
-
-/*//red button IF SMTH GOES WRONG or just to build new m_pBoard :)
-void BoardBuilder::Restart()
-{
-    m_pBoard->.clear();
-    for (int i = 0; i < m_pBoard->GetHeight(); i++)
-    {
-        for (int j = 0; j < m_pBoard->GetWidth(); j++)
-        {
-            (*m_pBoard)[i][j] = '.';
-        }
-    }
-}
-*/

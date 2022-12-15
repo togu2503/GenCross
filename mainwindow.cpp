@@ -9,6 +9,7 @@
 #include <QString>
 #include <waitdialog.h>
 #include <QAbstractItemModel>
+#include <QActionGroup>
 #include <lengthdialog.h>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -16,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->actionShowAnswers->setEnabled(m_bShowUserBoard);
-    ui->actionHideAnswers->setEnabled(!m_bShowUserBoard);
+
+    CreateLanguageMenu();
 }
 
 MainWindow::~MainWindow()
@@ -30,21 +31,129 @@ void MainWindow::SetActiveDocument(const Document& doc)
     m_ActiveDocument = doc;
 }
 
+void MainWindow::ChangeEvent(QEvent* event) {
+ if(0 != event) {
+  switch(event->type()) {
+   // this event is send if a translator is loaded
+   case QEvent::LanguageChange:
+    ui->retranslateUi(this);
+    break;
+
+   // this event is send, if the system, language changes
+   case QEvent::LocaleChange:
+   {
+    QString locale = QLocale::system().name();
+    locale.truncate(locale.lastIndexOf('_'));
+    LoadLanguage(locale);
+   }
+   break;
+  }
+ }
+ QMainWindow::changeEvent(event);
+}
+
+void MainWindow::CreateLanguageMenu() {
+ QActionGroup* langGroup = new QActionGroup(ui->menuLanguage->parent());
+ langGroup->setExclusive(true);
+
+ connect(langGroup, SIGNAL (triggered(QAction *)), this, SLOT (LanguageChanged(QAction *)));
+
+ //Ukrainian by default
+ QString defaultLocale = "ua";
+
+ m_LanguagesPath = QApplication::applicationDirPath();
+ m_LanguagesPath.append("/languages");
+ QDir dir(m_LanguagesPath);
+ QStringList fileNames = dir.entryList(QStringList("Translation_*.qm"));
+
+ for (int i = 0; i < fileNames.size(); ++i) {
+
+  // get locale extracted by filename
+  QString locale;
+  locale = fileNames[i];
+  locale.truncate(locale.lastIndexOf('.'));
+  locale.remove(0, locale.lastIndexOf('_') + 1);
+
+  QString lang;
+
+  // Issue with ukrainian
+  if(locale != "ua")
+  {
+     lang = QLocale::languageToString(QLocale(locale).language());
+  }
+  else
+  {
+      lang = "Українська";
+  }
+  QAction *action = new QAction(lang, this);
+  action->setCheckable(true);
+  action->setData(locale);
+
+  ui->menuLanguage->addAction(action);
+  langGroup->addAction(action);
+
+  if (defaultLocale == locale) {
+   action->setChecked(true);
+   LoadLanguage(defaultLocale);
+  }
+ }
+}
+
+
+void MainWindow::LanguageChanged(QAction* action)
+{
+ if(0 != action) {
+  // load the language dependant on the action content
+  LoadLanguage(action->data().toString());
+ }
+}
+
+void MainWindow::switchTranslator(QTranslator& translator, const QString& filename) {
+ // remove the old translator
+ qApp->removeTranslator(&translator);
+
+ // load the new translator
+QString path = QApplication::applicationDirPath();
+    path.append("/languages/");
+ if(translator.load(path + filename)) //Here Path and Filename has to be entered because the system didn't find the QM Files else
+ {
+     qApp->installTranslator(&translator);
+     ui->retranslateUi(this);
+ }
+ }
+
+void MainWindow::LoadLanguage(const QString& rLanguage) {
+ if(m_CurrentLanguage != rLanguage) {
+  m_CurrentLanguage = rLanguage;
+  QLocale locale = QLocale(m_CurrentLanguage);
+  QLocale::setDefault(locale);
+  //QString languageName = QLocale::languageToString(locale.language());
+  switchTranslator(m_Translator, QString("Translation_") + rLanguage + ".qm");
+  switchTranslator(m_TranslatorQt, QString("Translation_") + rLanguage + ".qm");
+ }
+}
+
 void MainWindow::ClearCrossTable()
 {
     auto board = m_ActiveDocument.GetBoard();
 
+    if(!board)
+        return;
+
     ui->CrossTable->setColumnCount(m_ActiveDocument.GetBoard()->GetWidth());
     ui->CrossTable->setRowCount(m_ActiveDocument.GetBoard()->GetHeight());
 
+    int nCellWidth = m_ActiveDocument.GetCellWidth();
+    int nCellHeight = m_ActiveDocument.GetCellHeight();
+
     for(int i = 0; i < m_ActiveDocument.GetBoard()->GetHeight(); i++)
     {
-        ui->CrossTable->setRowHeight(i, m_nCellHeight);
+        ui->CrossTable->setRowHeight(i, nCellHeight);
     }
 
     for(int i = 0; i < m_ActiveDocument.GetBoard()->GetWidth(); i++)
     {
-        ui->CrossTable->setColumnWidth(i, m_nCellWidth);
+        ui->CrossTable->setColumnWidth(i, nCellWidth);
     }
 
     for(int i = 0;i < board->GetHeight(); i++)
@@ -61,14 +170,23 @@ void MainWindow::ClearCrossTable()
 
 void MainWindow::FormatCrossTable()
 {
+    if(!m_ActiveDocument.GetBoard())
+        return;
+
+    int nCellWidth = m_ActiveDocument.GetCellWidth();
+    int nCellHeight = m_ActiveDocument.GetCellHeight();
+
+    ui->CrossTable->setColumnCount(m_ActiveDocument.GetBoard()->GetWidth());
+    ui->CrossTable->setRowCount(m_ActiveDocument.GetBoard()->GetHeight());
+
     for(int i = 0; i < m_ActiveDocument.GetBoard()->GetHeight(); i++)
     {
-        ui->CrossTable->setRowHeight(i, m_nCellHeight);
+        ui->CrossTable->setRowHeight(i, nCellHeight);
     }
 
     for(int i = 0; i < m_ActiveDocument.GetBoard()->GetWidth(); i++)
     {
-        ui->CrossTable->setColumnWidth(i, m_nCellWidth);
+        ui->CrossTable->setColumnWidth(i, nCellWidth);
     }
 
     auto board = m_ActiveDocument.GetBoard();
@@ -87,6 +205,9 @@ void MainWindow::FormatCrossTable()
 
 void MainWindow::ShowAnswers()
 {
+    if(!m_ActiveDocument.GetBoard())
+        return;
+
     for(int i = 0;i < m_ActiveDocument.GetBoard()->GetHeight(); i++)
         for(int j = 0; j < m_ActiveDocument.GetBoard()->GetWidth(); j++)
         {
@@ -104,6 +225,12 @@ void MainWindow::ShowAnswers()
 
 void MainWindow::ShowQuestions()
 {
+    if(!m_ActiveDocument.GetBoard())
+        return;
+
+    int nCellWidth = m_ActiveDocument.GetCellWidth();
+    int nCellHeight = m_ActiveDocument.GetCellHeight();
+
     ui->WordList->clear();
 
     for(int i = 0;i < m_ActiveDocument.GetBoard()->GetQuestions().size(); i++)
@@ -139,7 +266,7 @@ void MainWindow::ShowQuestions()
         {
             QImage backgroundIcon(imagePath);
             QTableWidgetItem* arrow = ui->CrossTable->item(currentQuestion.start.m_row,currentQuestion.start.m_col);
-            arrow->setBackground(QBrush(backgroundIcon.scaled(m_nCellWidth,m_nCellHeight,Qt::AspectRatioMode::KeepAspectRatio,Qt::TransformationMode::SmoothTransformation)));
+            arrow->setBackground(QBrush(backgroundIcon.scaled(nCellWidth,nCellHeight,Qt::AspectRatioMode::KeepAspectRatio,Qt::TransformationMode::SmoothTransformation)));
             ui->CrossTable->setItem(currentQuestion.questionPos.m_row, currentQuestion.questionPos.m_col, arrow);
         }
 
@@ -148,6 +275,9 @@ void MainWindow::ShowQuestions()
 
 void MainWindow::ShowUserAnswers()
 {
+    if(!m_ActiveDocument.GetUserBoard())
+        return;
+
     for(int i = 0;i < m_ActiveDocument.GetUserBoard()->GetHeight(); i++)
         for(int j = 0; j < m_ActiveDocument.GetUserBoard()->GetWidth(); j++)
         {
@@ -165,6 +295,9 @@ void MainWindow::ShowUserAnswers()
 
 void MainWindow::ShowActiveDocument()
 {
+    if(!m_ActiveDocument.GetBoard())
+        return;
+
     ClearCrossTable();
 
     if(!m_bShowUserBoard)
@@ -231,21 +364,43 @@ void MainWindow::on_actionCreate_triggered()
 {
     CreateCrosswordDlg dlg;
     dlg.setModal(true);
-    Board temp;
-    dlg.CreateBoard(&temp);
 
-    m_ActiveDocument.SetBoard(temp);
+    std::shared_ptr<Board> temp = dlg.CreateBoard();
+
+    if(!temp)
+        return;
+
+    m_ActiveDocument.SetBoard(*temp);
+    ui->actionSave->setEnabled(true);
+
+    ResizeToBoard();
 
     ShowActiveDocument();
 }
 
+void MainWindow::ResizeToBoard()
+{
+    int newWindowWidth = std::max(640,std::min(1366,m_ActiveDocument.GetCellWidth() * m_ActiveDocument.GetBoard()->GetWidth()+ 278));
+    int newWindowHeight = std::max(420, std::min(768,m_ActiveDocument.GetCellHeight() * m_ActiveDocument.GetBoard()->GetHeight()+ 88));
+
+    resize(newWindowWidth, newWindowHeight);
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
-    QFileDialog dialog;
-    dialog.setFileMode(QFileDialog::AnyFile);
-    auto pathToFile = dialog.getOpenFileName();
+    QString filter = "GenCross Board (*.gcb);;";
+
+    auto pathToFile = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
+
+    if(pathToFile.isEmpty())
+        return;
 
     m_ActiveDocument = Document(pathToFile);
+
+    ui->actionSave_As->setEnabled(true);
+    ui->actionSave->setEnabled(true);
+
+    ResizeToBoard();
 
     ClearCrossTable();
     ShowActiveDocument();
@@ -257,11 +412,17 @@ void MainWindow::on_actionSave_triggered()
 {
     if(m_ActiveDocument.GetSaveFilePath().isEmpty())
     {
-        QFileDialog dialog;
-        dialog.setFileMode(QFileDialog::AnyFile);;
-        auto pathToFile = dialog.getSaveFileName();
+        QString filter = "GenCross Board (*.gcb);;";
+
+        auto pathToFile = QFileDialog::getSaveFileName(this,"Save the file", "", filter);
+        if(pathToFile.isEmpty())
+            return;
+
+        ui->actionSave_As->setEnabled(true);
         m_ActiveDocument.SetSaveFilePath(pathToFile);
+        m_ActiveDocument.GetBoard()->ExportToPDFFile(pathToFile.toStdString());
     }
+
 
     m_ActiveDocument.SaveDocumentAsJSON();
 
@@ -285,29 +446,20 @@ void MainWindow::on_actionGenerate_Empy_Board_triggered()
     WaitDialog spiner(this);
 
     m_myThread = QThread::create([&](){
-        bool isBuilded = false;
+
         // 10 x 10
         // 3 - 7 seed 10
         // 3 - 5 seed 13, 15, 17, 23, 26, 33
         // 12 x 14
         // 3 - 5 seed 4, 5
         BoardBuilder builder(min, max, 100);
-        while(!isBuilded)
-        {
-            try
-            {
-            auto tempBoard = *m_ActiveDocument.GetBoard();
-            builder.GenerateBoard(tempBoard, seed);
-            m_ActiveDocument.SetBoard(tempBoard);
-            ShowActiveDocument();
-            isBuilded = true;
-            }
-            catch(...)
-            {
 
-            }}
-        }
-        );
+        auto tempBoard = *m_ActiveDocument.GetBoard();
+        builder.GenerateBoard(tempBoard, seed);
+         m_ActiveDocument.SetBoard(tempBoard);
+         ShowActiveDocument();
+
+        });
 
     spiner.ExecFunction(m_myThread);
 
@@ -319,21 +471,13 @@ void MainWindow::on_actionGenerate_Solved_Board_triggered()
     m_myThread = QThread::create([&](){
 
     PuzzleSolver solver("crossword_PDO.db");
-    bool isBuilded = false;
-    while(!isBuilded)
-    try
-    {
 
-        auto tempBoard = *m_ActiveDocument.GetBoard();
-        solver.SolvePuzzle(tempBoard,11);
-        m_ActiveDocument.SetBoard(tempBoard);
-        ShowActiveDocument();
-        isBuilded = true;
-    }
-    catch(...)
-    {
+    auto tempBoard = *m_ActiveDocument.GetBoard();
+    solver.SolvePuzzle(tempBoard,11);
+    m_ActiveDocument.SetBoard(tempBoard);
+    ShowActiveDocument();
 
-    }});
+    });
     WaitDialog waitDlg(this);
 
     waitDlg.ExecFunction(m_myThread);
@@ -344,6 +488,9 @@ void MainWindow::on_WordList_itemClicked(QListWidgetItem *item)
 {
     if(ui->WordList->currentRow() >= m_ActiveDocument.GetBoard()->GetQuestions().size())
         return;
+
+    ui->CrossTable->clearSelection();
+
    Question q = m_ActiveDocument.GetBoard()->GetQuestions()[ui->WordList->currentRow()];
     if (ui->WordList->isActiveWindow())
     {
@@ -430,5 +577,26 @@ void MainWindow::on_actionHideAnswers_triggered()
 
     ShowActiveDocument();
 
+}
+
+
+void MainWindow::on_actionExit_triggered()
+{
+  close();
+}
+
+
+void MainWindow::on_actionSave_As_triggered()
+{
+    QString filter = "GenCross Board (*.gcb);;";
+
+    auto pathToFile = QFileDialog::getSaveFileName(this,"Save the file", "", filter);
+    m_ActiveDocument.SetSaveFilePath(pathToFile);
+
+    m_ActiveDocument.GetBoard()->ExportToPDFFile(pathToFile.toStdString());
+
+    m_ActiveDocument.SaveDocumentAsJSON();
+
+    ShowActiveDocument();
 }
 

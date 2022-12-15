@@ -278,6 +278,9 @@ void Board::RemoveLastQuestionFromBoard()
 *******************************************************/
 void Board::PutLetterInCell(const Cell& cell, char letter)
 {
+    if(cell.m_row >= m_data.size() || cell.m_col > m_data[0].size() || cell.m_row < 0 || cell.m_col < 0)
+        return;
+
     m_data[cell.m_row][cell.m_col] = letter;
 }
 
@@ -413,6 +416,7 @@ void Board::ExportToPDFFile(const std::string& filePath)
 {
     QTextDocument *doc = new QTextDocument;
     doc->setDocumentMargin(0);
+
     QTextCursor cursor(doc);
 
     cursor.movePosition(QTextCursor::Start);
@@ -424,10 +428,7 @@ void Board::ExportToPDFFile(const std::string& filePath)
     tableFormat.setBorder(1);
 
     tableFormat.setBorderCollapse(true);
-
     tableFormat.setAlignment(Qt::AlignCenter);
-
-    tableFormat.setWidth(60 * GetWidth());
 
     table->setFormat(tableFormat);
 
@@ -435,38 +436,70 @@ void Board::ExportToPDFFile(const std::string& filePath)
     {
         for(int j = 0; j < GetWidth(); j++)
         {
-            QTextCharFormat format;
-            format.setVerticalAlignment(QTextCharFormat::VerticalAlignment::AlignMiddle);
 
             QTextTableCell cell = table->cellAt(i,j);
 
+
             QTextCursor cellCursor = cell.firstCursorPosition();
 
-            cellCursor.insertText(QString(GetLetterFromCell({i,j})),format);
+            QTextCharFormat format;
+            format.setVerticalAlignment(QTextCharFormat::AlignMiddle);
+            format.setFont(QFont("Times New Roman", 12));
+
+            QTextBlockFormat centerAlignment;
+            centerAlignment.setAlignment(Qt::AlignHCenter);
+
+            QTextFrameFormat frameFormat;
+            frameFormat.setHeight(QTextLength(QTextLength::Type::FixedLength, 0));
+
+            cellCursor = cellCursor.insertFrame(frameFormat)->lastCursorPosition();
+            cellCursor.setCharFormat(format);
+            cellCursor.setBlockFormat(centerAlignment);
+
+
+            char letter = GetLetterFromCell({i,j});
+
+            if(letter != '#')
+                cellCursor.insertText(QString(letter),format);
 
         }
     }
 
     for(int i =0;i< m_questions.size(); i++)
     {
-        QTextCharFormat format;
+
 
         QTextTableCell cell = table->cellAt(m_questions[i].questionPos.m_row, m_questions[i].questionPos.m_col);
 
         MultiLineText temp (m_questions[i].question, 10);
 
-        format.setVerticalAlignment(QTextCharFormat::VerticalAlignment::AlignMiddle);
-
         QTextCursor cellCursor = cell.firstCursorPosition();
 
-        cellCursor.insertText(QString::fromStdString(temp.GetString()), format);
-    }
+        QTextCharFormat format;
+        format.setVerticalAlignment(QTextCharFormat::AlignMiddle);
+        format.setFont(QFont("Times New Roman", 8));
 
+        QTextBlockFormat centerAlignment;
+        centerAlignment.setAlignment(Qt::AlignHCenter);
+
+        QTextFrameFormat frameFormat;
+        QString imagePath = "./img/" + QString::fromStdString(Direction::GetImagePathByArrow(m_questions[i].direction));
+        if(imagePath != "./img/")
+        {
+            QImage backgroundIcon(imagePath);
+            frameFormat.setBackground(QBrush(backgroundIcon.scaled(200,200,Qt::AspectRatioMode::KeepAspectRatio,Qt::TransformationMode::SmoothTransformation)));
+        }
+
+        cellCursor.setBlockFormat(centerAlignment);
+        cellCursor.insertFrame(frameFormat);
+
+        //cellCursor.insertText(QString::fromStdString(temp.GetString()), format);
+    }
 
     //Print to PDF
     QPrinter printer(QPrinter::HighResolution);
     printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(QString::fromStdString(filePath));
+    printer.setOutputFileName(QString::fromStdString(filePath)+ ".pdf");
     doc->print(&printer);
 }
 

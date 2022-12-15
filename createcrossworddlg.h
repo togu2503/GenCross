@@ -14,7 +14,7 @@ class CreateCrosswordDlg : public QDialog
 
 public:
 
-    void CreateBoard(Board* board);
+    std::shared_ptr<Board> CreateBoard();
 
     explicit CreateCrosswordDlg(QWidget *parent = nullptr);
     ~CreateCrosswordDlg();
@@ -31,9 +31,13 @@ private slots:
 
     void on_WidthSpinBox_valueChanged(int arg1);
 
+    void on_buttonBox_rejected();
+
 private:
     unsigned int m_Width;
     unsigned int m_Height;
+
+    bool isCanceled = false;
     Ui::CreateCrosswordDlg *ui;
 };
 

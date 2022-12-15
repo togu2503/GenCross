@@ -3,57 +3,6 @@
 #include "regex"
 #include <numeric>
 
-//ctor
-/*
-PuzzleSolver::PuzzleSolver(std::string t_filePath, std::string t_pathToDatabase, int t_seed)
-{
-    std::ifstream fin;
-    std::vector<TableRow> sqlQuery;
-    SQLBase base(t_pathToDatabase);
-    int countOfQuestions;
-    Question temp;
-    Cell DistanceVec;
-    maxLengthOfWord = 0;
-    if (t_seed == 0)
-        srand(time(NULL));
-    else
-        srand(t_seed);
-
-    fin.open(t_filePath);
-    int width, height;
-    fin >> height >> width;
-    board = Board(height, width);
-    for (int i = 0; i < height; ++i)
-        for (int j = 0; j < width; ++j)
-        {
-            fin >> board[i][j];
-        }
-    fin >> countOfQuestions;
-    for (int i = 0; i < countOfQuestions; ++i)
-    {
-        fin >> temp.questionPos.m_row >> temp.questionPos.m_col >> temp.start.m_row >> temp.start.m_col >> temp.end.m_row >> temp.end.m_col >> temp.direction;
-        DistanceVec = temp.end - temp.start;
-        temp.length = std::max(DistanceVec.m_row, DistanceVec.m_col) + 1;
-        temp.answer = std::string(temp.length, '_');
-        m_pBoard->GetQuestions().push_back(temp);
-        if (temp.length > maxLengthOfWord)
-            maxLengthOfWord = temp.length;
-        badAnswers.push_back(std::vector < std::string >());
-    }
-    wordList.resize(maxLengthOfWord + 1);
-    for (int i = 2; i <= maxLengthOfWord; ++i)
-    {
-        try
-        {
-            wordList[i] = std::vector<TableRow>(base.getWords(std::string(i, '_')));
-        }
-        catch (std::string error)
-        {
-            throw error;
-        }
-    }
-}*/
-
 PuzzleSolver::PuzzleSolver(std::string pathToDatabase)
 {
     m_pathToDatabase = pathToDatabase;
@@ -86,9 +35,7 @@ bool PuzzleSolver::IsWordInDict(std::string t_word)
 bool PuzzleSolver::IsPossibleToSolve(int start)
 {
     int countOfWords = 1;
-    /*  if (t_start < 5)countOfWords = 2;
-      else
-          countOfWords = 1;*/
+
     for (int i = start + 1; i < m_zeroIntersections; ++i)
     {
         if (FindCountOfWords(GetSortedQuestion(i).answer) < countOfWords)
@@ -273,8 +220,7 @@ void PuzzleSolver::SolvePuzzle(Board& board, int seed)
             currentQuestion--;
             m_badAnswers[currentQuestion].push_back(m_pBoard->GetQuestions()[currentQuestion].answer);
             m_pBoard->SetQuestionAnswer(m_questionIndicies[currentQuestion], "", std::string(GetSortedQuestion(currentQuestion).length, '_'));
-            //system("cls");
-            //m_pBoard->ShowBoard();
+
             continue;
         }
 
@@ -308,32 +254,25 @@ void PuzzleSolver::SolvePuzzle(Board& board, int seed)
             currentQuestion--;
             m_badAnswers[currentQuestion].push_back(sqlQuery[wordNumber].answer);
             m_pBoard->SetQuestionAnswer(m_questionIndicies[currentQuestion], "", std::string(GetSortedQuestion(currentQuestion).length, '_'));
-            //system("cls");
-            //m_pBoard->ShowBoard();
+
             continue;
         }
 
 
         m_pBoard->SetQuestionAnswer(m_questionIndicies[currentQuestion], sqlQuery[wordNumber].question, sqlQuery[wordNumber].answer);
-        //system("cls");
-        //m_pBoard->ShowBoard();
+
         usedWords.push_back(GetSortedQuestion(currentQuestion).answer);
         if (!IsPossibleToSolve(currentQuestion))
         {
             m_badAnswers[currentQuestion].push_back(sqlQuery[wordNumber].answer);
             m_pBoard->SetQuestionAnswer(m_questionIndicies[currentQuestion], "", std::string(GetSortedQuestion(currentQuestion).length, '_'));
-            //system("cls");
-            //m_pBoard->ShowBoard();
+
             continue;
         }
 
         currentQuestion++;
         if (currentQuestion < m_badAnswers.size())
             m_badAnswers[currentQuestion-1].clear();
-        //system("cls");
-        //m_pBoard->ShowBoard();
-        //if (currentQuestion < m_pBoard->GetQuestions().size())
-           // std::cout << "Next word is:\n" << GetSortedQuestion(currentQuestion).answer;
     }
 
 }

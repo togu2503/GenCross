@@ -6,6 +6,8 @@ CreateCrosswordDlg::CreateCrosswordDlg(QWidget *parent) :
     ui(new Ui::CreateCrosswordDlg)
 {
     ui->setupUi(this);
+    m_Height = ui->HeightSpinBox->value();
+    m_Width = ui->WidthSpinBox->value();
 }
 
 CreateCrosswordDlg::~CreateCrosswordDlg()
@@ -13,14 +15,14 @@ CreateCrosswordDlg::~CreateCrosswordDlg()
     delete ui;
 }
 
-void CreateCrosswordDlg::CreateBoard(Board* board)
+std::shared_ptr<Board> CreateCrosswordDlg::CreateBoard()
 {
     exec();
 
-    if(GetHeight() == 0 || GetWidth() == 0)
-        return;
+    if(GetHeight() == 0 || GetWidth() == 0 || isCanceled)
+        return nullptr;
 
-    *board = Board(GetHeight(),GetWidth());
+    return  std::make_shared<Board>(GetHeight(),GetWidth());
 }
 
 unsigned int CreateCrosswordDlg::GetHeight()
@@ -55,3 +57,9 @@ void CreateCrosswordDlg::on_HeightSpinBox_valueChanged(int arg1)
 {
     SetHeight(arg1);
 }
+
+void CreateCrosswordDlg::on_buttonBox_rejected()
+{
+    isCanceled = true;
+}
+

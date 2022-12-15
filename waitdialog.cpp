@@ -15,7 +15,7 @@ void WaitDialog::ExecFunction(QThread* thread)
     m_Thread = thread;
     m_Thread ->start();
     QObject::connect(
-                m_Thread , &QThread::finished,[&](){this->close();});
+                m_Thread , &QThread::finished,[&](){this->accept();});
     exec();
 }
 
@@ -28,16 +28,20 @@ void WaitDialog::StopProcess()
 {
     if(!m_bIsTerminated)
     {
-        m_Thread->quit();
         m_bIsTerminated = true;
-        this->setModal(false);
-        this->clearFocus();
-        this->close();
+        this->reject();
     }
 }
 
 void WaitDialog::on_pushButton_clicked()
 {
     StopProcess();
+}
+
+
+
+void WaitDialog::on_WaitDialog_rejected()
+{
+    m_Thread->terminate();
 }
 

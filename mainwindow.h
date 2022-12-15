@@ -24,6 +24,8 @@ class MainWindow : public QMainWindow
 
 public:
 
+    void ChangeEvent(QEvent*);
+
     void ClearCrossTable();
 
     void ShowQuestions();
@@ -47,6 +49,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+
+    void LoadLanguage(const QString& rLanguage);
+
+protected slots:
+    void LanguageChanged(QAction* action);
+
 private slots:
     void on_actionOpen_triggered();
 
@@ -68,7 +76,22 @@ private slots:
 
     void on_actionHideAnswers_triggered();
 
+    void on_actionExit_triggered();
+
+    void on_actionSave_As_triggered();
+
 private:
+
+    void CreateLanguageMenu();
+
+    void ResizeToBoard();
+
+    void switchTranslator(QTranslator& translator, const QString& filename);
+
+    QTranslator m_Translator;
+    QTranslator m_TranslatorQt;
+    QString m_CurrentLanguage;
+    QString m_LanguagesPath;
 
     void CopyMainToUserBoard();
 
@@ -77,9 +100,6 @@ private:
 
     Cell m_NormVectorAnswer;
     Cell m_CurrentCell;
-
-    int m_nCellWidth = 60;
-    int m_nCellHeight = 60;
 
     bool m_bShowUserBoard = true;
     enum ViewType

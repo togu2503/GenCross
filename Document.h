@@ -35,8 +35,8 @@ private:
     std::shared_ptr<Board> m_Board;
     std::shared_ptr<Board> m_UserBoard;
 
-    int m_CellWidth;
-    int m_CellHeight;
+    int m_CellWidth = 60;
+    int m_CellHeight = 60;
 
     QString m_SaveFilePath;
 };
