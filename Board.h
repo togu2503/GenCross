@@ -21,31 +21,32 @@ public:
 
     int GetWidth() const { return m_width; }
     int GetHeight() const { return m_height; }
+
     const std::vector<std::string>& GetBoardAsVectorOfString() { return m_data; }
+
     const std::vector<Question>& GetQuestions() { return m_questions; }
-    char GetLetterFromCell(const Cell& cell) { return m_data[cell.m_row][cell.m_col]; };
     const Question& GetLastQuestion() { return m_questions.back(); }
+
+    char GetLetterFromCell(const Cell& cell) { return m_data[cell.m_row][cell.m_col]; };
+    void PutLetterInCell(const Cell& cell, char letter);
+
+    void CleanBoard();
 
     const std::string& GetRow(int index) const;
     void SetRow(int index, std::string);
 
     void SetQuestionAnswer(int index, std::string question, std::string answer);
 
-    void PutLetterInCell(const Cell& cell, char letter);
-
     bool IsAnyVoidCell();
     bool IsOverlapping(const Cell& cell, const Direction::DirectionType& direction);
 
     Cell FindEmptyCell();
+
     void RemoveQuestionFromBoard(const int index);
     void RemoveLastQuestionFromBoard();
     void PutQuestionOnBoard(const Question& question);
 
-    void CleanBoard();
-
     void ExportToPDFFile(const std::string& filePath);
-
-    void SaveAsJSONFile(QString path);
 
     friend void swap(Board&, Board&) noexcept;
 
