@@ -46,8 +46,6 @@ public:
     void RemoveLastQuestionFromBoard();
     void PutQuestionOnBoard(const Question& question);
 
-    void ExportToPDFFile(const std::string& filePath);
-
     friend void swap(Board&, Board&) noexcept;
 
     void ShowBoard();

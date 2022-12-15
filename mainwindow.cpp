@@ -360,6 +360,29 @@ void MainWindow::CheckAnswers()
     }
 }
 
+void MainWindow::ResizeToBoard()
+{
+    int newWindowWidth = std::max(640,std::min(1366,m_ActiveDocument.GetCellWidth() * m_ActiveDocument.GetBoard()->GetWidth()+ 278));
+    int newWindowHeight = std::max(420, std::min(768,m_ActiveDocument.GetCellHeight() * m_ActiveDocument.GetBoard()->GetHeight()+ 88));
+
+    resize(newWindowWidth, newWindowHeight);
+}
+
+void MainWindow::SelectActiveCell()
+{
+    ui->CrossTable->setCurrentCell(m_CurrentCell.m_row,m_CurrentCell.m_col);
+}
+
+void MainWindow::NextActiveCell()
+{
+    Cell nextCell = m_CurrentCell + m_NormVectorAnswer;
+
+    auto nextItem = ui->CrossTable->item(nextCell.m_row, nextCell.m_col);
+
+    if(m_ActiveDocument.GetBoard()->IsCellOnBoard(nextCell) && nextItem->flags() != Qt::NoItemFlags)
+        m_CurrentCell = nextCell;
+}
+
 void MainWindow::on_actionCreate_triggered()
 {
     CreateCrosswordDlg dlg;
@@ -376,14 +399,6 @@ void MainWindow::on_actionCreate_triggered()
     ResizeToBoard();
 
     ShowActiveDocument();
-}
-
-void MainWindow::ResizeToBoard()
-{
-    int newWindowWidth = std::max(640,std::min(1366,m_ActiveDocument.GetCellWidth() * m_ActiveDocument.GetBoard()->GetWidth()+ 278));
-    int newWindowHeight = std::max(420, std::min(768,m_ActiveDocument.GetCellHeight() * m_ActiveDocument.GetBoard()->GetHeight()+ 88));
-
-    resize(newWindowWidth, newWindowHeight);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -420,7 +435,6 @@ void MainWindow::on_actionSave_triggered()
 
         ui->actionSave_As->setEnabled(true);
         m_ActiveDocument.SetSaveFilePath(pathToFile);
-        m_ActiveDocument.GetBoard()->ExportToPDFFile(pathToFile.toStdString());
     }
 
 
@@ -498,11 +512,6 @@ void MainWindow::on_WordList_itemClicked(QListWidgetItem *item)
     }
 }
 
-void MainWindow::SelectActiveCell()
-{
-    ui->CrossTable->setCurrentCell(m_CurrentCell.m_row,m_CurrentCell.m_col);
-}
-
 void MainWindow::on_CrossTable_cellClicked(int row, int column)
 {
     auto questions = m_ActiveDocument.GetBoard()->GetQuestions();
@@ -517,16 +526,6 @@ void MainWindow::on_CrossTable_cellClicked(int row, int column)
         }
     }
     m_CurrentCell = Cell(row, column);
-}
-
-void MainWindow::NextActiveCell()
-{
-    Cell nextCell = m_CurrentCell + m_NormVectorAnswer;
-
-    auto nextItem = ui->CrossTable->item(nextCell.m_row, nextCell.m_col);
-
-    if(m_ActiveDocument.GetBoard()->IsCellOnBoard(nextCell) && nextItem->flags() != Qt::NoItemFlags)
-        m_CurrentCell = nextCell;
 }
 
 void MainWindow::on_CrossTable_cellChanged(int row, int column)
@@ -592,8 +591,6 @@ void MainWindow::on_actionSave_As_triggered()
 
     auto pathToFile = QFileDialog::getSaveFileName(this,"Save the file", "", filter);
     m_ActiveDocument.SetSaveFilePath(pathToFile);
-
-    m_ActiveDocument.GetBoard()->ExportToPDFFile(pathToFile.toStdString());
 
     m_ActiveDocument.SaveDocumentAsJSON();
 

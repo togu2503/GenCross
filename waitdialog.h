@@ -22,9 +22,7 @@ public:
 
 private slots:
     void on_pushButton_clicked();
-    void on_WaitDialog_finished(int result);
     void on_WaitDialog_rejected();
-    void on_WaitDialog_destroyed();
 
 private:
     Ui::WaitDialog *ui;
