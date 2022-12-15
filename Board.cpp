@@ -1,10 +1,6 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
-#include <QTextDocument>
-#include <QTextCursor>
-#include <QTextTable>
-#include <QTextTableCell>
 #include <QPrinter>
 #include <QJsonObject>
 #include <QJsonArray>
