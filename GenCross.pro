@@ -1,7 +1,5 @@
 QT       += gui sql
 
-TRANSLATIONS = languages/Translation_ua.ts  languages/Translation_en.ts
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11

@@ -22,7 +22,7 @@ void Document::CopyMainToUserBoard()
     for(int i = 0; i < m_Board->GetQuestions().size(); i++)
     {
         auto currentQuestion = m_Board->GetQuestions()[i];
-        m_UserBoard->PutLetterInCell(Cell(currentQuestion.questionPos.m_col,currentQuestion.questionPos.m_row), '#');
+        m_UserBoard->PutLetterInCell(Cell(currentQuestion.questionPos.m_row,currentQuestion.questionPos.m_col), '#');
     }
 }
 

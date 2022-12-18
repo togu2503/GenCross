@@ -91,6 +91,7 @@ private:
     Cell m_CurrentCell;
 
     bool m_bShowUserBoard = true;
+    bool m_bShowedBoard = true;
     enum ViewType
     {
         WithAnswers = 1,

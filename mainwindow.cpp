@@ -298,6 +298,8 @@ void MainWindow::ShowActiveDocument()
     if(!m_ActiveDocument.GetBoard())
         return;
 
+    m_bShowedBoard = false;
+
     ClearCrossTable();
 
     if(!m_bShowUserBoard)
@@ -306,6 +308,8 @@ void MainWindow::ShowActiveDocument()
         ShowUserAnswers();
 
     ShowQuestions();
+
+    m_bShowedBoard = true;
 }
 
 
@@ -530,6 +534,9 @@ void MainWindow::on_CrossTable_cellClicked(int row, int column)
 
 void MainWindow::on_CrossTable_cellChanged(int row, int column)
 {
+
+    if(!m_bShowedBoard)
+        return;
 
    if(ui->CrossTable->item(row,column)->flags() == Qt::NoItemFlags)
         return;
