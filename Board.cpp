@@ -1,7 +1,6 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
-#include <QPrinter>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>

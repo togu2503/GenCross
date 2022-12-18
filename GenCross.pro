@@ -1,4 +1,4 @@
-QT       += core gui sql printsupport
+QT       += gui sql
 
 TRANSLATIONS = languages/Translation_ua.ts  languages/Translation_en.ts
 
