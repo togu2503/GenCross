@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include "createcrossworddlg.h"
+#include <QTableWidgetItem>
 #include "Document.h"
 #include "BoardBuilder.h"
 #include "PuzzleSolver.h"

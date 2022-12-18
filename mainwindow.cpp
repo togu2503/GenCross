@@ -374,6 +374,7 @@ void MainWindow::ResizeToBoard()
 
 void MainWindow::SelectActiveCell()
 {
+    ui->CrossTable->clearSelection();
     ui->CrossTable->setCurrentCell(m_CurrentCell.m_row,m_CurrentCell.m_col);
 }
 
@@ -536,6 +537,9 @@ void MainWindow::on_CrossTable_cellChanged(int row, int column)
 {
 
     if(!m_bShowedBoard)
+        return;
+
+    if(!ui->CrossTable->item(row,column)->isSelected())
         return;
 
    if(ui->CrossTable->item(row,column)->flags() == Qt::NoItemFlags)
