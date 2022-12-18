@@ -12,6 +12,7 @@ SQLBase::SQLBase(std::string DataBaseName)
 
 SQLBase::~SQLBase()
 {
+    m_db.close();
 }
 
 int SQLBase::getNumberOfWords(std::string word)

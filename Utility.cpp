@@ -59,19 +59,17 @@ namespace Direction
 std::vector<std::string> SplitOnWords(std::string str)
 {
     std::vector<std::string> res;
-    std::string temp;
-    temp.clear();
-    for(int i=0;i<str.size();i++)
-    {
-        if(str[i]!=' ')
-            temp.append(1,str[i]);
-        else
-        {
-            res.push_back(temp);
-            temp.clear();
-        }
+
+    std::string delimiter = " ";
+
+    size_t pos = 0;
+    std::string token;
+    while ((pos = str.find(delimiter)) != std::string::npos) {
+        token = str.substr(0, pos);
+        res.push_back(token);
+        str.erase(0, pos + delimiter.length());
     }
-    res.push_back(temp);
+
     return res;
 }
 
