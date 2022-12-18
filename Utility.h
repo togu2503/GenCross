@@ -17,41 +17,48 @@ struct MultiLineText
     {
        lineLength = lengthOfLine;
        std::string line;
-       bool isWordInLine = false;
        int currentLength = 0;
        std::vector<std::string> words = SplitOnWords(str);
        for(int i = 0; i < words.size(); i++)
        {
-           if(currentLength + words[i].size() < lengthOfLine)
+           if(currentLength + words[i].size() <= lengthOfLine)
            {
                line.append(words[i]);
-               isWordInLine = true;
                currentLength += words[i].size();
-               if(currentLength + 1 < lengthOfLine)
+               if(currentLength + 1 <= lengthOfLine)
                {
                    line.append(" ");
+                   currentLength++;
+               }
+               else
+               {
+                   line.append("-\n");
+                   lines.push_back(line);
+                   line.clear();
+                   currentLength = 0;
                }
            }
            else
            {
-               if(!isWordInLine)
+               if(lengthOfLine - currentLength > 2)
                {
-                   line.append(words[i].c_str(),lengthOfLine-1);
+                   line.append(words[i].c_str(), lengthOfLine - currentLength - 1);
                    line.append("-\n");
                    lines.push_back(line);
                    line.clear();
-                   line.append(words[i].substr(lengthOfLine-1));
-                   line.append(" ");
-                   currentLength = words[i].substr(lengthOfLine).size();
-                   isWordInLine = true;
-                   continue;
+                   line.append(words[i], lengthOfLine - currentLength - 1, std::string::npos);
                }
-               line.insert(0,std::string(" ",(lengthOfLine-currentLength)/2));
-               line.append("\n");
-               lines.push_back(line);
-               line.clear();
-               currentLength = 0;
-               isWordInLine = false;
+               else
+               {
+                   line.insert(0,std::string(" ",(lengthOfLine-currentLength)/2));
+                   line.append("\n");
+                   lines.push_back(line);
+                   line.clear();
+                   line.append(words[i]);
+               }
+
+               line.append(" ");
+               currentLength = line.size();
            }
        }
        lines.push_back(line);
